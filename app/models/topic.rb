@@ -31,6 +31,7 @@ class Topic < ApplicationRecord
   validates :user_id, :title, :body, :node_id, presence: true
 
   counter :hits, default: 0
+  list :hit_at
 
   delegate :login, to: :user, prefix: true, allow_nil: true
   delegate :body, to: :last_reply, prefix: true, allow_nil: true

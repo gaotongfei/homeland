@@ -8,6 +8,16 @@ class TopicsController < ApplicationController
   before_action :set_topic, only: [:ban, :edit, :update, :destroy, :follow,
                                    :unfollow, :action, :ban]
 
+  def weekly_trending
+    @topics = Topic.all.page(params[:page])
+    render 'index'
+  end
+
+  def daily_trending
+    @topics = Topic.all.page(params[:page])
+    render 'index'
+  end
+
   def index
     @suggest_topics = []
     if params[:page].to_i <= 1
@@ -86,7 +96,11 @@ class TopicsController < ApplicationController
     @topic = Topic.unscoped.includes(:user).find(params[:id])
     render_404 if @topic.deleted?
 
-    @topic.hits.incr(1)
+    # redis transaction
+    $redis.multi do
+      $redis.incr "topic:#{params[:id]}:hits"
+      $redis.rpush "topic:#{params[:id]}:hit_at", Time.now
+    end
     @node = @topic.node
     @show_raw = params[:raw] == "1"
     @can_reply = can?(:create, Reply)

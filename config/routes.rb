@@ -57,6 +57,8 @@ Rails.application.routes.draw do
   get 'topics/node:id', to: 'topics#node', as: 'node_topics'
   get 'topics/node:id/feed', to: 'topics#node_feed', as: 'feed_node_topics', defaults: { format: 'xml' }
   get 'topics/last', to: 'topics#recent', as: 'recent_topics'
+  get 'topics/trending/weekly', to: 'topics#weekly_trending'
+  get 'topics/trending/daily', to: 'topics#daily_trending'
 
   resources :topics do
     member do
