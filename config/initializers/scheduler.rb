@@ -5,6 +5,10 @@ include Homeland
 
 scheduler = Rufus::Scheduler.new
 
+redis_config = Rails.application.config_for(:redis)
+redis = Redis.new(host: redis_config['host'], port: redis_config['port'])
+redis.select(0)
+
 # update weekly trending every 1 hour
 scheduler.every '1h' do
   topics = Topic.all
@@ -12,6 +16,7 @@ scheduler.every '1h' do
     ts = TopicScore.new
     score = ts.score(7, :days, topic)
     topic.update(weekly_score: score)
+    redis.del("weekly_trending")
   end
 end
 
@@ -22,5 +27,6 @@ scheduler.every '10m' do
     ts = TopicScore.new
     score = ts.score(24, :hours, topic)
     topic.update(daily_score: score)
+    redis.del("daily_trending")
   end
 end

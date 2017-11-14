@@ -1,4 +1,5 @@
 class TopicsController < ApplicationController
+  include TopicsHelper
   before_action :authenticate_user!, only: [:new, :edit, :create, :update, :destroy,
                                             :favorite, :unfavorite, :follow, :unfollow,
                                             :action, :favorites]
@@ -9,12 +10,14 @@ class TopicsController < ApplicationController
                                    :unfollow, :action, :ban]
 
   def weekly_trending
-    @topics = Topic.all.page(params[:page])
+    @topics = fetch_topics("weekly_trending")
+    @topics = Kaminari.paginate_array(@topics).page(params[:page])
     render 'index'
   end
 
   def daily_trending
-    @topics = Topic.all.page(params[:page])
+    @topics = fetch_topics("daily_trending")
+    @topics = Kaminari.paginate_array(@topics).page(params[:page])
     render 'index'
   end
 

@@ -1,5 +1,19 @@
 require "digest/md5"
 module TopicsHelper
+  def fetch_topics(key)
+    valid_keys = ["weekly_trending", "daily_trending"]
+    if valid_keys.include? key
+      topics = $redis.get(key)
+      if topics.nil?
+        unit = key.split("_")[0]
+        order_by = "#{unit}_score"
+        topics = Topic.order("#{order_by} desc").take(100).to_json
+        $redis.set(key, topics)
+      end
+      JSON.parse(topics, object_class: OpenStruct)
+    end
+  end
+
   def topic_favorite_tag(topic, opts = {})
     return "" if current_user.blank?
     opts[:class] ||= ""
