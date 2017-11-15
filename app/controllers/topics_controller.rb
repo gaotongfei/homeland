@@ -103,6 +103,7 @@ class TopicsController < ApplicationController
     $redis.multi do
       $redis.incr "topic:#{params[:id]}:hits"
       $redis.rpush "topic:#{params[:id]}:hit_at", Time.now
+      $redis.sadd "hit_topics", params[:id]
     end
     @node = @topic.node
     @show_raw = params[:raw] == "1"

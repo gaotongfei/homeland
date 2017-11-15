@@ -62,10 +62,12 @@ class Topic < ApplicationRecord
     indexes :body, term_vector: :yes
   end
 
-  def self.recent_replied_topics(counts, unit)
+  def self.recent_active_topics(counts, unit)
     replies = Reply.where(created_at: counts.send(unit.to_sym).send(:ago)..Time.current)
     replies_ids = replies.map {|r| r.topic_id}.uniq
-    Topic.where(id: replies_ids)
+    hit_topics_ids = $redis.smembers("hit_topics").map {|t| t.to_i}
+    $redis.del "hit_topics"
+    Topic.where(id: (replies_ids + hit_topics_ids).uniq)
   end
 
   def self.recent_replies(topic, counts, unit)
