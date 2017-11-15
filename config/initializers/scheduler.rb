@@ -11,7 +11,7 @@ redis.select(0)
 
 # update weekly trending every 1 hour
 scheduler.every '1h' do
-  topics = Topic.all
+  topics = Topic.recent_replied_topics(7, :days)
   topics.map do |topic|
     ts = TopicScore.new
     score = ts.score(7, :days, topic)
@@ -22,7 +22,7 @@ end
 
 # update daily trending every 10 minutes
 scheduler.every '10m' do
-  topics = Topic.all
+  topics = Topic.recent_replied_topics(24, :hours)
   topics.map do |topic|
     ts = TopicScore.new
     score = ts.score(24, :hours, topic)

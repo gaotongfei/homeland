@@ -62,6 +62,16 @@ class Topic < ApplicationRecord
     indexes :body, term_vector: :yes
   end
 
+  def self.recent_replied_topics(counts, unit)
+    replies = Reply.where(created_at: counts.send(unit.to_sym).send(:ago)..Time.current)
+    replies_ids = replies.map {|r| r.topic_id}.uniq
+    Topic.where(id: replies_ids)
+  end
+
+  def self.recent_replies(topic, counts, unit)
+    Reply.where(topic_id: topic.id, created_at: counts.send(unit.to_sym).send(:ago)..Time.current)
+  end
+
   def as_indexed_json(_options = {})
     {
       title: self.title,

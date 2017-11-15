@@ -13,8 +13,9 @@ module Homeland
       default_options = {start: 1}
       options = default_options.merge(options)
       start = options[:start]
+      replies = Topic.recent_replies(topic, counts, unit)
       (start..counts).each do |u|
-        topic.replies.each do |reply|
+        replies.each do |reply|
           if Time.now - reply.created_at < u.send(unit.to_sym)
             @reply_score += 1
           end
